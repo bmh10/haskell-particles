@@ -5,32 +5,46 @@ import qualified Graphics.Gloss.Game as GG
 import Graphics.Gloss.Data.ViewPort
 import Graphics.Gloss.Interface.Pure.Game as G2
 import System.IO  
+import System.Random 
 import Control.Monad
 import Data.Fixed
 import Data.List
 import Data.Maybe
 
 fps = 20
-width = 765 -- 51 * 15
-height = 465 + dashboardHeight -- 31 * 15
+width = 800
+height = 500 + dashboardHeight -- 31 * 15
 dashboardHeight = 20
 offset = 100
+
 particleRadius = 5
-maxTileX = 50
-maxTileY = 27
+gravityPerFrame = -5
+
 window = InWindow "Particles" (width, height) (offset, offset)
 background = black
 
 data LifeGame = Game
   { 
     particles :: [Particle],
-    paused :: Bool
+    paused :: Bool,
+    gen :: StdGen
   } deriving Show 
 
 data Particle = Particle
   {
     pos :: (Int, Int)
   } deriving Show
+
+randomParticles 0 _   = []
+randomParticles n gen = p : randomParticles (n-1) gen'
+  where (p, gen') = randomParticle gen
+
+randomParticle gen = (Particle { pos = (x, y) }, gen')
+  where (x, y, gen') = randomPos gen
+
+randomPos gen = (x, y, gen'')
+  where (x, gen')  = randomR (1, width)  gen
+        (y, gen'') = randomR (1, height) gen'
 
 -- Rendering
 render :: LifeGame -> Picture 
@@ -65,14 +79,14 @@ update secs game
 updateGame g = g { particles = updateParticles (particles g) }
 
 updateParticles [] = []
-updateParticles (p:ps) = p { pos = add (pos p) (0, -1) } : updateParticles ps
+updateParticles (p:ps) = p { pos = add (pos p) (0, gravityPerFrame) } : updateParticles ps
 
 add (a,b) (c,d) = (a+c,b+d)
 
 initGame = do 
-  let initialParticles = [Particle { pos = (10, 10) }, 
-                          Particle { pos = (20, 20) }]
-  let initialState = Game { paused = False, particles = initialParticles }
+  stdGen <- newStdGen
+  let initialParticles = randomParticles 10 stdGen
+  let initialState = Game { paused = False, particles = initialParticles, gen = stdGen }
   return initialState
 
 main = do
