@@ -15,7 +15,7 @@ width = 765 -- 51 * 15
 height = 465 + dashboardHeight -- 31 * 15
 dashboardHeight = 20
 offset = 100
-tileSize = 15
+particleRadius = 5
 maxTileX = 50
 maxTileY = 27
 window = InWindow "Particles" (width, height) (offset, offset)
@@ -44,7 +44,7 @@ renderParticles g = pictures $ map renderParticle (particles g)
 
 renderParticle :: Particle -> Picture
 renderParticle p
- = translate x' y' $ G2.color blue $ rectangleSolid (tileSize-1) (tileSize-1)
+ = translate x' y' $ G2.color blue $ circleSolid particleRadius
   where
     (x, y) = pos p
     (x', y') = (fromIntegral x, fromIntegral y)
@@ -60,12 +60,18 @@ togglePaused   g = g { paused   = not (paused g) }
 update :: Float -> LifeGame -> LifeGame
 update secs game
  | (paused game) = game
- | otherwise     = updateParticles game
+ | otherwise     = updateGame game
 
-updateParticles g = g
+updateGame g = g { particles = updateParticles (particles g) }
+
+updateParticles [] = []
+updateParticles (p:ps) = p { pos = add (pos p) (0, -1) } : updateParticles ps
+
+add (a,b) (c,d) = (a+c,b+d)
 
 initGame = do 
-  let initialParticles = [Particle { pos = (10, 10) }]
+  let initialParticles = [Particle { pos = (10, 10) }, 
+                          Particle { pos = (20, 20) }]
   let initialState = Game { paused = False, particles = initialParticles }
   return initialState
 
