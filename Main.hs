@@ -17,8 +17,8 @@ height = 500 + dashboardHeight -- 31 * 15
 dashboardHeight = 20
 offset = 100
 
-particleRadius = 5
-gravityPerFrame = -5
+particleRadius = 3
+gravityPerFrame = -1
 
 window = InWindow "Particles" (width, height) (offset, offset)
 background = black
@@ -35,6 +35,8 @@ data Particle = Particle
     pos :: (Int, Int)
   } deriving Show
 
+particle pos = Particle { pos = pos}
+
 randomParticles 0 _   = []
 randomParticles n gen = p : randomParticles (n-1) gen'
   where (p, gen') = randomParticle gen
@@ -43,8 +45,10 @@ randomParticle gen = (Particle { pos = (x, y) }, gen')
   where (x, y, gen') = randomPos gen
 
 randomPos gen = (x, y, gen'')
-  where (x, gen')  = randomR (1, width)  gen
-        (y, gen'') = randomR (1, height) gen'
+  where (x, gen')  = randomR (-w, w)  gen
+        (y, gen'') = randomR (-h, h) gen'
+        w = quot width 2
+        h = quot height 2
 
 -- Rendering
 render :: LifeGame -> Picture 
@@ -85,7 +89,7 @@ add (a,b) (c,d) = (a+c,b+d)
 
 initGame = do 
   stdGen <- newStdGen
-  let initialParticles = randomParticles 10 stdGen
+  let initialParticles = randomParticles 100 stdGen
   let initialState = Game { paused = False, particles = initialParticles, gen = stdGen }
   return initialState
 
