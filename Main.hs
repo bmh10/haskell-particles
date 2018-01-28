@@ -18,7 +18,7 @@ dashboardHeight = 20
 offset = 100
 
 particleRadius = 3
-gravityPerFrame = -5
+gravityPerFrame = -2
 xVelRange = 5
 
 window = InWindow "Particles" (width, height) (offset, offset)
@@ -34,19 +34,25 @@ data LifeGame = Game
 data Particle = Particle
   {
     pos :: (Int, Int),
-    vel :: (Int, Int)
+    vel :: (Int, Int),
+    mass :: Int
   } deriving Show
 
-particle pos vel = Particle { pos = pos, vel = vel }
+particle pos vel mass = Particle { pos = pos, vel = vel, mass = mass }
 
 randomParticles 0 gen = ([], gen)
 randomParticles n gen = (p : ps, gen'')
   where (p, gen')   = randomParticle gen
         (ps, gen'') = randomParticles (n-1) gen'
 
-randomParticle gen = (Particle { pos = (x, y), vel = (xvel, gravityPerFrame) }, gen')
-  where (x, y, gen')  = randomPos gen
-        (xvel, gen'') = randomVel gen'
+randomParticle gen = (Particle { 
+                       pos = (x, y),
+                       vel = (xvel, mass*gravityPerFrame),
+                       mass = mass },
+                     gen''')
+  where (x, y, gen')   = randomPos gen
+        (xvel, gen'')  = randomVel gen'
+        (mass, gen''') = randomMass gen''
 
 randomPos gen = (x, y, gen'')
   where (x, gen')  = randomR (-w, w)  gen
@@ -54,7 +60,8 @@ randomPos gen = (x, y, gen'')
         w = quot width 2
         h = quot height 2
 
-randomVel gen = randomR (-xVelRange, xVelRange) gen
+randomVel gen  = randomR (-xVelRange, xVelRange) gen
+randomMass gen = randomR (1, 5) gen
 
 -- Rendering
 render :: LifeGame -> Picture 
