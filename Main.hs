@@ -32,22 +32,23 @@ data LifeGame = Game
 
 data Particle = Particle
   {
-    pos :: (Int, Int)
+    pos :: (Int, Int),
+    vel :: (Int, Int)
   } deriving Show
 
-particle pos = Particle { pos = pos}
+particle pos vel = Particle { pos = pos, vel = vel }
 
 randomParticles 0 gen = ([], gen)
 randomParticles n gen = (p : ps, gen'')
   where (p, gen')   = randomParticle gen
         (ps, gen'') = randomParticles (n-1) gen'
 
-randomParticle gen = (Particle { pos = (x, y) }, gen')
+randomParticle gen = (Particle { pos = (x, y), vel = (1, gravityPerFrame) }, gen')
   where (x, y, gen') = randomPos gen
 
 randomPos gen = (x, y, gen'')
   where (x, gen')  = randomR (-w, w)  gen
-        (y, gen'') = randomR (-h, h) gen'
+        (y, gen'') = randomR (h-50, h+50) gen'
         w = quot width 2
         h = quot height 2
 
@@ -89,7 +90,7 @@ addParticles g = g { particles = (particles g) ++ ps, gen = gen' }
 updateParticles [] = []
 updateParticles (p:ps) = updateParticle p ++ updateParticles ps
   where updateParticle p
-          | inRange p = [p { pos = add (pos p) (0, gravityPerFrame) }]
+          | inRange p = [p { pos = add (pos p) (vel p) }]
           | otherwise = []
 
 inRange p = -w <= x && x <= w && -h <= y && y <= h
