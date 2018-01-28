@@ -57,7 +57,7 @@ render g = pictures [renderParticles g,
                      renderDashboard g]
 
 renderDashboard :: LifeGame -> Picture
-renderDashboard g = G2.color white $ translate (-300) (-fromIntegral height/2 + 5) $ scale 0.1 0.1 $ text $ "Dashboard"
+renderDashboard g = G2.color white $ translate (-300) (-fromIntegral height/2 + 5) $ scale 0.1 0.1 $ text $ "Particles: " ++ show (length (particles g))
 
 renderParticles g = pictures $ map renderParticle (particles g)
 
