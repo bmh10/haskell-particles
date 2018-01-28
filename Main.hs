@@ -27,6 +27,7 @@ background = black
 data LifeGame = Game
   { 
     particles :: [Particle],
+    objects :: [Particle],
     paused :: Bool,
     gen :: StdGen
   } deriving Show 
@@ -35,10 +36,12 @@ data Particle = Particle
   {
     pos :: (Int, Int),
     vel :: (Int, Int),
-    mass :: Int
+    mass :: Int,
+    radius :: Float,
+    col :: G2.Color
   } deriving Show
 
-particle pos vel mass = Particle { pos = pos, vel = vel, mass = mass }
+particle pos vel mass radius col = Particle { pos = pos, vel = vel, mass = mass, radius = radius, col = col }
 
 randomParticles 0 gen = ([], gen)
 randomParticles n gen = (p : ps, gen'')
@@ -48,7 +51,9 @@ randomParticles n gen = (p : ps, gen'')
 randomParticle gen = (Particle { 
                        pos = (x, y),
                        vel = (xvel, mass*gravityPerFrame),
-                       mass = mass },
+                       mass = mass,
+                       radius = particleRadius,
+                       col = blue },
                      gen''')
   where (x, y, gen')   = randomPos gen
         (xvel, gen'')  = randomVel gen'
@@ -71,11 +76,11 @@ render g = pictures [renderParticles g,
 renderDashboard :: LifeGame -> Picture
 renderDashboard g = G2.color white $ translate (-300) (-fromIntegral height/2 + 5) $ scale 0.1 0.1 $ text $ "Particles: " ++ show (length (particles g))
 
-renderParticles g = pictures $ map renderParticle (particles g)
+renderParticles g = pictures $ map renderParticle (objects g) ++ map renderParticle (particles g)
 
 renderParticle :: Particle -> Picture
 renderParticle p
- = translate x' y' $ G2.color blue $ circleSolid particleRadius
+ = translate x' y' $ G2.color (col p) $ circleSolid (radius p)
   where
     (x, y) = pos p
     (x', y') = (fromIntegral x, fromIntegral y)
@@ -114,7 +119,8 @@ add (a,b) (c,d) = (a+c,b+d)
 initGame = do 
   stdGen <- newStdGen
   let (initialParticles, stdGen') = randomParticles 1000 stdGen
-  let initialState = Game { paused = False, particles = initialParticles, gen = stdGen' }
+  let initialObjects = [Particle { pos = (0, 0), vel = (0, 0), mass = 1 , radius = 20, col = red}]
+  let initialState = Game { paused = False, particles = initialParticles, objects = initialObjects, gen = stdGen' }
   return initialState
 
 main = do
