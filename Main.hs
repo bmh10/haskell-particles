@@ -19,6 +19,7 @@ offset = 100
 
 particleRadius = 3
 gravityPerFrame = -5
+xVelRange = 5
 
 window = InWindow "Particles" (width, height) (offset, offset)
 background = black
@@ -43,14 +44,17 @@ randomParticles n gen = (p : ps, gen'')
   where (p, gen')   = randomParticle gen
         (ps, gen'') = randomParticles (n-1) gen'
 
-randomParticle gen = (Particle { pos = (x, y), vel = (1, gravityPerFrame) }, gen')
-  where (x, y, gen') = randomPos gen
+randomParticle gen = (Particle { pos = (x, y), vel = (xvel, gravityPerFrame) }, gen')
+  where (x, y, gen')  = randomPos gen
+        (xvel, gen'') = randomVel gen'
 
 randomPos gen = (x, y, gen'')
   where (x, gen')  = randomR (-w, w)  gen
         (y, gen'') = randomR (h-50, h+50) gen'
         w = quot width 2
         h = quot height 2
+
+randomVel gen = randomR (-xVelRange, xVelRange) gen
 
 -- Rendering
 render :: LifeGame -> Picture 
