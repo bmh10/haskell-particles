@@ -48,13 +48,7 @@ randomParticles n gen = (p : ps, gen'')
   where (p, gen')   = randomParticle gen
         (ps, gen'') = randomParticles (n-1) gen'
 
-randomParticle gen = (Particle { 
-                       pos = (x, y),
-                       vel = (xvel, mass*gravityPerFrame),
-                       mass = mass,
-                       radius = particleRadius,
-                       col = blue },
-                     gen''')
+randomParticle gen = (particle (x, y) (xvel, mass*gravityPerFrame) mass particleRadius blue, gen''')
   where (x, y, gen')   = randomPos gen
         (xvel, gen'')  = randomVel gen'
         (mass, gen''') = randomMass gen''
