@@ -37,9 +37,10 @@ data Particle = Particle
 
 particle pos = Particle { pos = pos}
 
-randomParticles 0 _   = []
-randomParticles n gen = p : randomParticles (n-1) gen'
-  where (p, gen') = randomParticle gen
+randomParticles 0 gen = ([], gen)
+randomParticles n gen = (p : ps, gen'')
+  where (p, gen')   = randomParticle gen
+        (ps, gen'') = randomParticles (n-1) gen'
 
 randomParticle gen = (Particle { pos = (x, y) }, gen')
   where (x, y, gen') = randomPos gen
@@ -80,7 +81,10 @@ update secs game
  | (paused game) = game
  | otherwise     = updateGame game
 
-updateGame g = g { particles = updateParticles (particles g) }
+updateGame g = addParticles $ g { particles = updateParticles (particles g) }
+
+addParticles g = g { particles = (particles g) ++ ps, gen = gen' }
+  where (ps, gen') = randomParticles 50 (gen g)
 
 updateParticles [] = []
 updateParticles (p:ps) = p { pos = add (pos p) (0, gravityPerFrame) } : updateParticles ps
@@ -89,8 +93,8 @@ add (a,b) (c,d) = (a+c,b+d)
 
 initGame = do 
   stdGen <- newStdGen
-  let initialParticles = randomParticles 100 stdGen
-  let initialState = Game { paused = False, particles = initialParticles, gen = stdGen }
+  let (initialParticles, stdGen') = randomParticles 1000 stdGen
+  let initialState = Game { paused = False, particles = initialParticles, gen = stdGen' }
   return initialState
 
 main = do
