@@ -18,7 +18,7 @@ dashboardHeight = 20
 offset = 100
 
 particleRadius = 3
-gravityPerFrame = -1
+gravityPerFrame = -5
 
 window = InWindow "Particles" (width, height) (offset, offset)
 background = black
@@ -87,7 +87,15 @@ addParticles g = g { particles = (particles g) ++ ps, gen = gen' }
   where (ps, gen') = randomParticles 50 (gen g)
 
 updateParticles [] = []
-updateParticles (p:ps) = p { pos = add (pos p) (0, gravityPerFrame) } : updateParticles ps
+updateParticles (p:ps) = updateParticle p ++ updateParticles ps
+  where updateParticle p
+          | inRange p = [p { pos = add (pos p) (0, gravityPerFrame) }]
+          | otherwise = []
+
+inRange p = -w <= x && x <= w && -h <= y && y <= h
+  where (x, y) = pos p
+        w = quot width 2
+        h = quot height 2
 
 add (a,b) (c,d) = (a+c,b+d)
 
