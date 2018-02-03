@@ -92,19 +92,25 @@ update secs game
  | (paused game) = game
  | otherwise     = updateGame game
 
-updateGame g = addParticles $ g { particles = updateParticles (particles g) }
+updateGame g = addParticles $ g { particles = updateParticles (particles g) (objects g) }
 
 addParticles g = g { particles = (particles g) ++ ps, gen = gen' }
   where (ps, gen') = randomParticles 10 (gen g)
 
-updateParticles [] = []
-updateParticles (p:ps) = updateParticle p ++ updateParticles ps
-  where updateParticle p
+updateParticles [] _ = []
+updateParticles (p:ps) os = updateParticle p os ++ updateParticles ps os
+  where updateParticle p os
+          | willHitObject p os = [p] -- TODO
           | willHitWall p = [p { vel = bounceX (vel p) }]
           | inRange p = [p { pos = add (pos p) (vel p) }]
           | otherwise = []
 
 bounceX (x, y) = (-x, y)
+
+willHitObject _ [] = False
+willHitObject p (o:os) = willHitObject' p o || willHitObject p os
+  where willHitObject' p o = False -- TODO
+
 willHitWall p = x < -w || x > w
   where (x, y) = add (pos p) (vel p)
         w = quot width 2
