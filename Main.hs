@@ -95,13 +95,19 @@ update secs game
 updateGame g = addParticles $ g { particles = updateParticles (particles g) }
 
 addParticles g = g { particles = (particles g) ++ ps, gen = gen' }
-  where (ps, gen') = randomParticles 50 (gen g)
+  where (ps, gen') = randomParticles 10 (gen g)
 
 updateParticles [] = []
 updateParticles (p:ps) = updateParticle p ++ updateParticles ps
   where updateParticle p
+          | hitWall p = [p { pos = add (pos p) (bounceX (vel p)) }]
           | inRange p = [p { pos = add (pos p) (vel p) }]
           | otherwise = []
+
+bounceX (x, y) = (-x+d, y) where d = if x > 0 then -2 else 2
+hitWall p = -w == x || x == w
+  where (x, y) = pos p
+        w = quot width 2
 
 inRange p = -w <= x && x <= w && -h <= y && y <= h
   where (x, y) = pos p
@@ -112,7 +118,7 @@ add (a,b) (c,d) = (a+c,b+d)
 
 initGame = do 
   stdGen <- newStdGen
-  let (initialParticles, stdGen') = randomParticles 1000 stdGen
+  let (initialParticles, stdGen') = randomParticles 100 stdGen
   let initialObjects = [Particle { pos = (0, 0), vel = (0, 0), mass = 1 , radius = 20, col = red}]
   let initialState = Game { paused = False, particles = initialParticles, objects = initialObjects, gen = stdGen' }
   return initialState
