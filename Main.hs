@@ -100,14 +100,13 @@ addParticles g = g { particles = (particles g) ++ ps, gen = gen' }
 updateParticles [] = []
 updateParticles (p:ps) = updateParticle p ++ updateParticles ps
   where updateParticle p
-          | hitWall p = [p { pos = add (pos p) vel', vel = vel' }]
+          | willHitWall p = [p { vel = bounceX (vel p) }]
           | inRange p = [p { pos = add (pos p) (vel p) }]
           | otherwise = []
-        vel' = bounceX (vel p)
 
 bounceX (x, y) = (-x, y)
-hitWall p = -w == x || x == w
-  where (x, y) = pos p
+willHitWall p = x < -w || x > w
+  where (x, y) = add (pos p) (vel p)
         w = quot width 2
 
 inRange p = -w <= x && x <= w && -h <= y && y <= h
