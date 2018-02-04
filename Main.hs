@@ -18,7 +18,7 @@ dashboardHeight = 20
 offset = 100
 
 particleRadius = 3
-gravityPerFrame = -2
+initialGravity = -2
 xVelRange = 5
 
 window = InWindow "Particles" (width, height) (offset, offset)
@@ -30,6 +30,7 @@ data LifeGame = Game
     objects :: [Particle],
     paused :: Bool,
     particleCreationCol :: G2.Color,
+    gravity :: Int,
     gen :: StdGen
   } deriving Show 
 
@@ -44,12 +45,12 @@ data Particle = Particle
 
 particle pos vel mass radius col = Particle { pos = pos, vel = vel, mass = mass, radius = radius, col = col }
 
-randomParticles 0 gen col = ([], gen)
-randomParticles n gen col = (p : ps, gen'')
-  where (p, gen')   = randomParticle gen col
-        (ps, gen'') = randomParticles (n-1) gen' col
+randomParticles 0 gen col grav = ([], gen)
+randomParticles n gen col grav = (p : ps, gen'')
+  where (p, gen')   = randomParticle gen col grav
+        (ps, gen'') = randomParticles (n-1) gen' col grav
 
-randomParticle gen col = (particle (x, y) (xvel, mass*gravityPerFrame) mass particleRadius col, gen''')
+randomParticle gen col grav = (particle (x, y) (xvel, mass*grav) mass particleRadius col, gen''')
   where (x, y, gen')   = randomPos gen
         (xvel, gen'')  = randomVel gen'
         (mass, gen''') = randomMass gen''
@@ -102,7 +103,7 @@ update secs game
 updateGame g = addParticles $ g { particles = updateParticles (particles g) (objects g) }
 
 addParticles g = g { particles = (particles g) ++ ps, gen = gen' }
-  where (ps, gen') = randomParticles 10 (gen g) (particleCreationCol g)
+  where (ps, gen') = randomParticles 10 (gen g) (particleCreationCol g) (gravity g)
 
 updateParticles [] _ = []
 updateParticles (p:ps) os = updateParticle p os ++ updateParticles ps os
@@ -131,9 +132,9 @@ add (a,b) (c,d) = (a+c,b+d)
 
 initGame = do 
   stdGen <- newStdGen
-  let (initialParticles, stdGen') = randomParticles 100 stdGen blue
+  let (initialParticles, stdGen') = randomParticles 100 stdGen blue initialGravity
   let initialObjects = [Particle { pos = (0, 0), vel = (0, 0), mass = 1 , radius = 20, col = red}]
-  let initialState = Game { paused = False, particles = initialParticles, objects = initialObjects, gen = stdGen', particleCreationCol = blue }
+  let initialState = Game { paused = False, particles = initialParticles, objects = initialObjects, gen = stdGen', particleCreationCol = blue, gravity = initialGravity }
   return initialState
 
 main = do
