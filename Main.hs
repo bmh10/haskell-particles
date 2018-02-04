@@ -43,12 +43,12 @@ data Particle = Particle
 
 particle pos vel mass radius col = Particle { pos = pos, vel = vel, mass = mass, radius = radius, col = col }
 
-randomParticles 0 gen = ([], gen)
-randomParticles n gen = (p : ps, gen'')
-  where (p, gen')   = randomParticle gen
-        (ps, gen'') = randomParticles (n-1) gen'
+randomParticles 0 gen col = ([], gen)
+randomParticles n gen col = (p : ps, gen'')
+  where (p, gen')   = randomParticle gen col
+        (ps, gen'') = randomParticles (n-1) gen' col
 
-randomParticle gen = (particle (x, y) (xvel, mass*gravityPerFrame) mass particleRadius blue, gen''')
+randomParticle gen col = (particle (x, y) (xvel, mass*gravityPerFrame) mass particleRadius col, gen''')
   where (x, y, gen')   = randomPos gen
         (xvel, gen'')  = randomVel gen'
         (mass, gen''') = randomMass gen''
@@ -95,7 +95,7 @@ update secs game
 updateGame g = addParticles $ g { particles = updateParticles (particles g) (objects g) }
 
 addParticles g = g { particles = (particles g) ++ ps, gen = gen' }
-  where (ps, gen') = randomParticles 10 (gen g)
+  where (ps, gen') = randomParticles 10 (gen g) blue
 
 updateParticles [] _ = []
 updateParticles (p:ps) os = updateParticle p os ++ updateParticles ps os
@@ -124,7 +124,7 @@ add (a,b) (c,d) = (a+c,b+d)
 
 initGame = do 
   stdGen <- newStdGen
-  let (initialParticles, stdGen') = randomParticles 100 stdGen
+  let (initialParticles, stdGen') = randomParticles 100 stdGen blue
   let initialObjects = [Particle { pos = (0, 0), vel = (0, 0), mass = 1 , radius = 20, col = red}]
   let initialState = Game { paused = False, particles = initialParticles, objects = initialObjects, gen = stdGen' }
   return initialState
