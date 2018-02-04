@@ -86,9 +86,11 @@ renderParticle p
 handleKeys :: Event -> LifeGame -> LifeGame
 handleKeys (EventKey (Char 'p') Down _ _) g = togglePaused g
 handleKeys (EventKey (Char 'c') Down _ _) g = toggleParticleColor g
+handleKeys (EventKey (Char 'g') Down _ _) g = increaseGravity g
 handleKeys _ game = game
 
 togglePaused   g = g { paused   = not (paused g) }
+increaseGravity g = g { gravity = (gravity g)-1 }
 toggleParticleColor g = g { particleCreationCol = nextCol (particleCreationCol g)}
   where nextCol c 
           | c == blue  = red
