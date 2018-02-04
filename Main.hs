@@ -29,6 +29,7 @@ data LifeGame = Game
     particles :: [Particle],
     objects :: [Particle],
     paused :: Bool,
+    particleCreationCol :: G2.Color,
     gen :: StdGen
   } deriving Show 
 
@@ -83,9 +84,15 @@ renderParticle p
 -- Event handling
 handleKeys :: Event -> LifeGame -> LifeGame
 handleKeys (EventKey (Char 'p') Down _ _) g = togglePaused g
+handleKeys (EventKey (Char 'c') Down _ _) g = toggleParticleColor g
 handleKeys _ game = game
 
 togglePaused   g = g { paused   = not (paused g) }
+toggleParticleColor g = g { particleCreationCol = nextCol (particleCreationCol g)}
+  where nextCol c 
+          | c == blue  = red
+          | c == red   = green
+          | c == green = blue
 
 update :: Float -> LifeGame -> LifeGame
 update secs game
@@ -95,7 +102,7 @@ update secs game
 updateGame g = addParticles $ g { particles = updateParticles (particles g) (objects g) }
 
 addParticles g = g { particles = (particles g) ++ ps, gen = gen' }
-  where (ps, gen') = randomParticles 10 (gen g) blue
+  where (ps, gen') = randomParticles 10 (gen g) (particleCreationCol g)
 
 updateParticles [] _ = []
 updateParticles (p:ps) os = updateParticle p os ++ updateParticles ps os
@@ -126,7 +133,7 @@ initGame = do
   stdGen <- newStdGen
   let (initialParticles, stdGen') = randomParticles 100 stdGen blue
   let initialObjects = [Particle { pos = (0, 0), vel = (0, 0), mass = 1 , radius = 20, col = red}]
-  let initialState = Game { paused = False, particles = initialParticles, objects = initialObjects, gen = stdGen' }
+  let initialState = Game { paused = False, particles = initialParticles, objects = initialObjects, gen = stdGen', particleCreationCol = blue }
   return initialState
 
 main = do
