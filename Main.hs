@@ -110,7 +110,7 @@ addParticles g = g { particles = (particles g) ++ ps, gen = gen' }
 updateParticles [] _ = []
 updateParticles (p:ps) os = updateParticle p os ++ updateParticles ps os
   where updateParticle p os
-          | willHitObject p os = [p { pos = add (pos p) (0, -1)} ] -- TODO
+          | willHitObject p os = [p { pos = add (pos p) (0, -1)} ]
           | willHitWall p = [p { vel = bounceX (vel p) }]
           | inRange p = [p { pos = add (pos p) (vel p) }]
           | otherwise = []
@@ -138,11 +138,14 @@ inRange p = -w <= x && x <= w && -h <= y && y <= h
 
 add (a,b) (c,d) = (a+c,b+d)
 
+initialObstacles = [obs (0, 0)]
+
+obs p = Particle { pos = p, vel = (0, 0), mass = 1, radius = 10, col = red }
+
 initGame = do 
   stdGen <- newStdGen
   let (initialParticles, stdGen') = randomParticles 100 stdGen blue initialGravity
-  let initialObjects = [Particle { pos = (0, 0), vel = (0, 0), mass = 1 , radius = 20, col = red}]
-  let initialState = Game { paused = False, particles = initialParticles, objects = initialObjects, gen = stdGen', particleCreationCol = blue, gravity = initialGravity }
+  let initialState = Game { paused = False, particles = initialParticles, objects = initialObstacles, gen = stdGen', particleCreationCol = blue, gravity = initialGravity }
   return initialState
 
 main = do
