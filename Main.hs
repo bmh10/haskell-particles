@@ -30,6 +30,7 @@ data LifeGame = Game
     objects :: [Particle],
     paused :: Bool,
     particleCreationCol :: G2.Color,
+    wallBounceColor :: Bool,
     gravity :: Int,
     gen :: StdGen
   } deriving Show 
@@ -87,6 +88,7 @@ handleKeys :: Event -> LifeGame -> LifeGame
 handleKeys (EventKey (Char 'p') Down _ _) g = togglePaused g
 handleKeys (EventKey (Char 'c') Down _ _) g = toggleParticleColor g
 handleKeys (EventKey (Char 'g') Down _ _) g = increaseGravity g
+handleKeys (EventKey (Char 'r') Down _ _) g = reset g
 handleKeys _ game = game
 
 togglePaused   g = g { paused   = not (paused g) }
@@ -167,9 +169,14 @@ slope (x, y) (gx, gy) = mo (x, y) ++ slope (x-gx, y-gy) (gx, gy)
 mo (x, y) = [obs (x, y), obs(-x, y)]
 obs p = Particle { pos = p, vel = (0, 0), mass = 1, radius = 10, col = black }
 
+initParticles gen = randomParticles 1000 gen blue initialGravity
+
+reset g = g { paused = False, particles = initialParticles, objects = initialObstacles, gen = gen', particleCreationCol = blue, gravity = initialGravity }
+  where (initialParticles, gen') = initParticles (gen g)
+
 initGame = do 
   stdGen <- newStdGen
-  let (initialParticles, stdGen') = randomParticles 1000 stdGen blue initialGravity
+  let (initialParticles, stdGen') = initParticles stdGen
   let initialState = Game { paused = False, particles = initialParticles, objects = initialObstacles, gen = stdGen', particleCreationCol = blue, gravity = initialGravity }
   return initialState
 
