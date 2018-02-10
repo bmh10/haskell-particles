@@ -110,16 +110,22 @@ addParticles g = g { particles = (particles g) ++ ps, gen = gen' }
 updateParticles [] _ = []
 updateParticles (p:ps) os = updateParticle p os ++ updateParticles ps os
   where updateParticle p os
-          | willHitObject p os = [p] -- TODO
+          | willHitObject p os = [p { pos = add (pos p) (0, -1)} ] -- TODO
           | willHitWall p = [p { vel = bounceX (vel p) }]
           | inRange p = [p { pos = add (pos p) (vel p) }]
           | otherwise = []
 
 bounceX (x, y) = (-x, y)
 
+willHitObject :: Particle -> [Particle] -> Bool
 willHitObject _ [] = False
 willHitObject p (o:os) = willHitObject' p o || willHitObject p os
-  where willHitObject' p o = False -- TODO
+  where 
+        willHitObject' :: Particle -> Particle -> Bool
+        willHitObject' p o = d < (radius o)
+        d = sqrt $ fromIntegral ((px - cx)*(px - cx) + (py - cy)*(py - cy))
+        (px, py) = pos p
+        (cx, cy) = pos o
 
 willHitWall p = x < -w || x > w
   where (x, y) = add (pos p) (vel p)
