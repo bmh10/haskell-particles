@@ -30,7 +30,6 @@ data LifeGame = Game
     objects :: [Particle],
     paused :: Bool,
     particleCreationCol :: G2.Color,
-    wallBounceColor :: Bool,
     gravity :: Int,
     gen :: StdGen
   } deriving Show 
