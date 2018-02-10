@@ -17,7 +17,7 @@ height = 500 + dashboardHeight -- 31 * 15
 dashboardHeight = 20
 offset = 100
 
-particleRadius = 3
+particleRadius = 1
 initialGravity = -2
 xVelRange = 5
 
@@ -105,13 +105,13 @@ update secs game
 updateGame g = addParticles $ g { particles = updateParticles (particles g) (objects g) }
 
 addParticles g = g { particles = (particles g) ++ ps, gen = gen' }
-  where (ps, gen') = randomParticles 10 (gen g) (particleCreationCol g) (gravity g)
+  where (ps, gen') = randomParticles 100 (gen g) (particleCreationCol g) (gravity g)
 
 updateParticles [] _ = []
 updateParticles (p:ps) os = updateParticle p os ++ updateParticles ps os
   where updateParticle p os
-          | willHitObject p os = [p { pos = add (pos p) (0, -1)} ]
-          | willHitWall p = [p { vel = bounceX (vel p) }]
+          | willHitObject p os = [p { pos = add (pos p) (0, -1), col = red } ]
+          | willHitWall p = [p { vel = bounceX (vel p), col = orange} ]
           | inRange p = [p { pos = add (pos p) (vel p) }]
           | otherwise = []
 
@@ -138,13 +138,38 @@ inRange p = -w <= x && x <= w && -h <= y && y <= h
 
 add (a,b) (c,d) = (a+c,b+d)
 
-initialObstacles = [obs (0, 0)]
+initialObstacles = mo (0, 0) ++ 
+                   mo (5, 10) ++ 
+                   mo (10, 20) ++ 
+                   mo (15, 30) ++
+                   mo (20, 40) ++
+                   mo (25, 50) ++
+                   mo (35, 60) ++
+                   mo (45, 70) ++ 
+                   mo (55, 75) ++ 
+                   mo (65, 80) ++
+                   mo (75, 80) ++
+                   mo (85, 80) ++
+                   mo (95, 75) ++
+                   mo (105, 70) ++
+                   mo (115, 65) ++
+                   mo (120, 55) ++
+                   mo (125, 45) ++
+                   mo (130, 35) ++ 
+                   mo (130, 25) ++ 
+                   mo (130, 15) ++ 
+                   mo (125, 5) ++ 
+                   slope (125, 5) (5, 5)
 
-obs p = Particle { pos = p, vel = (0, 0), mass = 1, radius = 10, col = red }
+slope (0, y) _ = mo (0, y)
+slope (x, y) (gx, gy) = mo (x, y) ++ slope (x-gx, y-gy) (gx, gy)
+
+mo (x, y) = [obs (x, y), obs(-x, y)]
+obs p = Particle { pos = p, vel = (0, 0), mass = 1, radius = 10, col = black }
 
 initGame = do 
   stdGen <- newStdGen
-  let (initialParticles, stdGen') = randomParticles 100 stdGen blue initialGravity
+  let (initialParticles, stdGen') = randomParticles 1000 stdGen blue initialGravity
   let initialState = Game { paused = False, particles = initialParticles, objects = initialObstacles, gen = stdGen', particleCreationCol = blue, gravity = initialGravity }
   return initialState
 
