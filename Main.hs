@@ -16,6 +16,8 @@ width = 800
 height = 500 + dashboardHeight -- 31 * 15
 dashboardHeight = 20
 offset = 100
+extraParticlesPerFrame = 100
+numInitialParticles = 1000
 
 particleRadius = 1
 initialGravity = -2
@@ -109,7 +111,7 @@ update secs game
 updateGame g = addParticles $ g { particles = updateParticles (particles g) (objects g) }
 
 addParticles g = g { particles = (particles g) ++ ps, gen = gen' }
-  where (ps, gen') = randomParticles 100 (gen g) (particleCreationCol g) (gravity g)
+  where (ps, gen') = randomParticles extraParticlesPerFrame (gen g) (particleCreationCol g) (gravity g)
 
 updateParticles [] _ = []
 updateParticles (p:ps) os = updateParticle p os ++ updateParticles ps os
@@ -171,7 +173,7 @@ slope (x, y) (gx, gy) = mo (x, y) ++ slope (x-gx, y-gy) (gx, gy)
 mo (x, y) = [obs (x, y), obs(-x, y)]
 obs p = Particle { pos = p, vel = (0, 0), mass = 1, radius = 10, col = black }
 
-initParticles gen = randomParticles 1000 gen blue initialGravity
+initParticles gen = randomParticles numInitialParticles gen blue initialGravity
 
 reset g = g { paused = False, particles = initialParticles, objects = initialObstacles, gen = gen', particleCreationCol = blue, gravity = initialGravity }
   where (initialParticles, gen') = initParticles (gen g)
