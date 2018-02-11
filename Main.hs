@@ -31,6 +31,7 @@ data LifeGame = Game
     paused :: Bool,
     particleCreationCol :: G2.Color,
     gravity :: Int,
+    showStats :: Bool,
     gen :: StdGen
   } deriving Show 
 
@@ -67,7 +68,7 @@ randomMass gen = randomR (1, 5) gen
 -- Rendering
 render :: LifeGame -> Picture 
 render g = pictures [renderParticles g, 
-                     renderDashboard g]
+                     if (showStats g) then renderDashboard g else blank]
 
 renderDashboard :: LifeGame -> Picture
 renderDashboard g = G2.color white $ translate (-300) (-fromIntegral height/2 + 5) $ scale 0.1 0.1 $ text $ "Particles: " ++ show (length (particles g))
@@ -88,8 +89,10 @@ handleKeys (EventKey (Char 'p') Down _ _) g = togglePaused g
 handleKeys (EventKey (Char 'c') Down _ _) g = toggleParticleColor g
 handleKeys (EventKey (Char 'g') Down _ _) g = increaseGravity g
 handleKeys (EventKey (Char 'r') Down _ _) g = reset g
+handleKeys (EventKey (Char 's') Down _ _) g = toggleState g
 handleKeys _ game = game
 
+toggleState g = g { showStats = not (showStats g) }
 togglePaused   g = g { paused   = not (paused g) }
 increaseGravity g = g { gravity = (gravity g)-1 }
 toggleParticleColor g = g { particleCreationCol = nextCol (particleCreationCol g)}
@@ -176,7 +179,7 @@ reset g = g { paused = False, particles = initialParticles, objects = initialObs
 initGame = do 
   stdGen <- newStdGen
   let (initialParticles, stdGen') = initParticles stdGen
-  let initialState = Game { paused = False, particles = initialParticles, objects = initialObstacles, gen = stdGen', particleCreationCol = blue, gravity = initialGravity }
+  let initialState = Game { paused = False, particles = initialParticles, objects = initialObstacles, gen = stdGen', particleCreationCol = blue, gravity = initialGravity, showStats = False }
   return initialState
 
 main = do
