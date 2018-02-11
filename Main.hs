@@ -95,7 +95,7 @@ handleKeys (EventKey (Char 's') Down _ _) g = toggleState g
 handleKeys _ game = game
 
 toggleState g = g { showStats = not (showStats g) }
-togglePaused   g = g { paused   = not (paused g) }
+togglePaused g = g { paused   = not (paused g) }
 increaseGravity g = g { gravity = (gravity g)-1 }
 toggleParticleColor g = g { particleCreationCol = nextCol (particleCreationCol g)}
   where nextCol c 
