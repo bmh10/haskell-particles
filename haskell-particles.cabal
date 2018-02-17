@@ -15,7 +15,7 @@ build-type:          Simple
 extra-source-files:  ChangeLog.md
 cabal-version:       >=1.10
 
-executable haskell-life
+executable haskell-particles
   main-is:             Main.hs
   -- other-modules:       
   -- other-extensions:    
