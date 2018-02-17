@@ -17,7 +17,7 @@ height = 500 + dashboardHeight -- 31 * 15
 dashboardHeight = 20
 offset = 100
 extraParticlesPerFrame = 100
-numInitialParticles = 1000
+numInitialParticles = 10000
 
 particleRadius = 1
 initialGravity = -2
@@ -91,10 +91,10 @@ handleKeys (EventKey (Char 'p') Down _ _) g = togglePaused g
 handleKeys (EventKey (Char 'c') Down _ _) g = toggleParticleColor g
 handleKeys (EventKey (Char 'g') Down _ _) g = increaseGravity g
 handleKeys (EventKey (Char 'r') Down _ _) g = reset g
-handleKeys (EventKey (Char 's') Down _ _) g = toggleState g
+handleKeys (EventKey (Char 's') Down _ _) g = toggleStats g
 handleKeys _ game = game
 
-toggleState g = g { showStats = not (showStats g) }
+toggleStats g = g { showStats = not (showStats g) }
 togglePaused g = g { paused   = not (paused g) }
 increaseGravity g = g { gravity = (gravity g)-1 }
 toggleParticleColor g = g { particleCreationCol = nextCol (particleCreationCol g)}
@@ -144,34 +144,9 @@ inRange p = -w <= x && x <= w && -h <= y && y <= h
 
 add (a,b) (c,d) = (a+c,b+d)
 
-initialObstacles = mo (0, 0) ++ 
-                   mo (5, 10) ++ 
-                   mo (10, 20) ++ 
-                   mo (15, 30) ++
-                   mo (20, 40) ++
-                   mo (25, 50) ++
-                   mo (35, 60) ++
-                   mo (45, 70) ++ 
-                   mo (55, 75) ++ 
-                   mo (65, 80) ++
-                   mo (75, 80) ++
-                   mo (85, 80) ++
-                   mo (95, 75) ++
-                   mo (105, 70) ++
-                   mo (115, 65) ++
-                   mo (120, 55) ++
-                   mo (125, 45) ++
-                   mo (130, 35) ++ 
-                   mo (130, 25) ++ 
-                   mo (130, 15) ++ 
-                   mo (125, 5) ++ 
-                   slope (125, 5) (5, 5)
+initialObstacles = [obs (0, 0)]
 
-slope (0, y) _ = mo (0, y)
-slope (x, y) (gx, gy) = mo (x, y) ++ slope (x-gx, y-gy) (gx, gy)
-
-mo (x, y) = [obs (x, y), obs(-x, y)]
-obs p = Particle { pos = p, vel = (0, 0), mass = 1, radius = 10, col = black }
+obs p = Particle { pos = p, vel = (0, 0), mass = 1, radius = 50, col = yellow }
 
 initParticles gen = randomParticles numInitialParticles gen blue initialGravity
 
