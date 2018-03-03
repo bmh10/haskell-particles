@@ -23,7 +23,7 @@ particleRadius = 1
 initialGravity = -2
 xVelRange = 5
 
-window = InWindow "Solar" (width, height) (offset, offset)
+window = InWindow "Particles" (width, height) (offset, offset)
 background = black
 
 data LifeGame = Game

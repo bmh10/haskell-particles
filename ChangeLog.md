@@ -1,4 +1,4 @@
-# Revision history for haskell-solar
+# Revision history for haskell-particles
 
 ## 0.1.0.0  -- YYYY-mm-dd
 
